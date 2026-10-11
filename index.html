@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#f6f7f5" />
+<title>Daymark — Rating Journal</title>
+<meta name="description" content="Daymark is a simple personal daily rating journal. Rate days, reflect on months and years, and keep your private notes in your browser." />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%2325674f'/%3E%3Cpath d='M12 44 27 26 38 34 54 13' fill='none' stroke='white' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<style>
+:root{--bg:#f6f7f5;--surface:#fff;--ink:#202a2a;--muted:#768181;--muted2:#98a3a0;--border:#e9eeea;--green:#276a57;--green-dark:#1c5948;--green-wash:#eaf4ef;--shadow:0 10px 40px rgba(25,56,40,.025);--radius:20px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.5}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #90c7af;outline-offset:2px}button:disabled{cursor:not-allowed;opacity:.55}::selection{background:#bfdfd0}
+.app{max-width:1610px;margin:auto;min-height:100vh;display:grid;grid-template-columns:244px minmax(0,1fr)}
+.sidebar{border-right:1px solid var(--border);padding:32px 19px 24px 23px;display:flex;flex-direction:column;gap:34px;min-height:100vh;position:sticky;top:0;height:100vh;background:#fafbf9}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px}.brand-mark{width:35px;height:35px;border-radius:12px;background:#25674f;color:white;display:grid;place-items:center;box-shadow:0 4px 12px #2c705b30}.brand strong{font-size:19px;letter-spacing:-.85px;font-weight:750}.brand small{display:block;font-size:10px;letter-spacing:1.3px;color:#91a09a;font-weight:750;margin-top:-4px}
+.nav-caption,.sidebar-label{color:#9caaa3;font-size:10px;letter-spacing:1.65px;font-weight:800;margin:0 0 12px 12px}.nav{display:flex;flex-direction:column;gap:5px}.nav-btn{border:0;width:100%;display:flex;gap:13px;align-items:center;padding:12px 13px;border-radius:11px;background:transparent;color:#6c7975;text-align:left;font-weight:650;transition:background .15s,color .15s}.nav-btn:hover{background:#e9f0eb;color:#224c3a}.nav-btn[aria-current="page"]{background:#e7f1e9;color:var(--green-dark)}.nav-icon{width:20px;height:20px;flex:none;display:grid;place-items:center}.nav-icon svg{width:19px;height:19px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.side-actions{margin-top:auto}.side-actions button{display:flex;align-items:center;gap:10px;border:1px solid #e6ece8;background:white;border-radius:11px;padding:11px 12px;width:100%;margin-bottom:9px;color:#54685c;font-size:12px;font-weight:700}.side-actions button:hover{border-color:#b2ccbc;background:#f9fdfa}.side-note{font-size:11px;line-height:1.7;color:#99a39e;margin:12px 7px 0}.side-bottom{display:flex;align-items:center;gap:7px;font-size:11px;color:#8a9b91;margin:0 7px}.status-dot{height:7px;width:7px;background:#70b78c;border-radius:50%;display:inline-block;flex:none}
+.main{padding:29px clamp(22px,4vw,68px) 70px;min-width:0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:45px}.crumbs{font-size:12px;color:#8d9a94;font-weight:600}.crumbs strong{color:#4f695b;font-weight:750}.topright{display:flex;align-items:center;gap:11px;color:#84918b;font-size:12px}.today-btn{border:1px solid #dce7df;background:#fff;border-radius:9px;color:#47715b;font-weight:700;padding:9px 14px}.today-btn:hover{background:var(--green-wash)}
+.eyebrow{font-size:11px;font-weight:850;color:#679078;letter-spacing:2px;text-transform:uppercase}.page-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}.page-heading h1{font-size:clamp(29px,3.1vw,42px);letter-spacing:-1.8px;line-height:1.13;margin:9px 0 8px;font-weight:800}.subtitle{font-size:13px;color:#84918b;margin:0;max-width:650px}.period-picker{display:flex;gap:7px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;padding:5px;white-space:nowrap}.period-picker button{height:31px;width:32px;border:0;background:transparent;border-radius:8px;color:#71837a;font-size:20px;line-height:1}.period-picker button:hover{background:#eff5f0;color:#286550}.period-picker span{padding:0 9px;font-size:13px;font-weight:750;min-width:67px;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-bottom:19px}.stat{background:#fff;border:1px solid var(--border);border-radius:17px;padding:18px 22px 17px;min-width:0;box-shadow:var(--shadow)}.stat-label{display:flex;align-items:center;gap:8px;color:#86958b;font-size:11px;font-weight:750;letter-spacing:.6px;text-transform:uppercase}.stat-label .stat-icon{font-size:16px;color:#7fa48b;font-weight:500}.stat-value{font-size:clamp(26px,3.1vw,37px);font-weight:800;letter-spacing:-1.3px;margin:4px 0 0;line-height:1.3;font-variant-numeric:tabular-nums}.stat-value small{font-size:14px;color:#95a49b;font-weight:650;letter-spacing:0}.stat-hint{font-size:11px;color:#9ca8a1;margin-top:1px}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) 315px;gap:19px;align-items:start}.stack{display:flex;flex-direction:column;gap:19px;min-width:0}.panel{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow);padding:24px;min-width:0}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.panel-title{font-size:16px;font-weight:780;letter-spacing:-.3px;margin:0}.panel-description{margin:4px 0 0;color:#98a39e;font-size:12px}.panel-meta{font-size:11px;color:#94a69a;background:#f4f8f4;border-radius:7px;padding:5px 9px;white-space:nowrap}
+.chart-guide{display:grid;grid-template-columns:28px minmax(0,1fr);margin-top:27px;gap:3px}.axis{height:216px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;color:#acb6b0;font-size:10px;padding-bottom:1px}.chart{position:relative;height:216px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px;align-items:end;padding:0 0 0 4px;background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),#eff2ee calc(25% - 1px),#eff2ee 25%)}.chart-col{height:100%;border:0;background:transparent;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:7px;padding:0 2px;min-width:0;position:relative}.chart-bar{width:100%;height:var(--bar-height);min-height:4px;border-radius:7px 7px 3px 3px;background:var(--bar-color);transition:filter .17s,transform .17s;position:relative}.chart-col:not(.no-data):hover .chart-bar{filter:brightness(.9);transform:scaleX(.92)}.chart-col.no-data .chart-bar{background:#e9eeea;height:3px;min-height:3px}.chart-labels{display:grid;grid-template-columns:28px repeat(12,minmax(0,1fr));gap:7px;margin-top:12px}.chart-labels span{font-size:10px;color:#93a099;text-align:center}.chart-labels span:first-child{visibility:hidden}
+.month-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:19px}.month-tile{border:1px solid #edf0ed;border-radius:13px;padding:15px 15px 13px;background:#fff;text-align:left;transition:border-color .17s,transform .17s,background .17s;min-width:0}.month-tile:hover{border-color:#a4c7af;background:#fbfdfb;transform:translateY(-1px)}.month-tile-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.month-tile-name{font-size:12px;font-weight:750}.month-tile-score{font-size:16px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}.month-tile-score.empty{color:#b4beb8}.month-tile-count{font-size:10px;color:#a0aba4;margin-top:3px}.mini-days{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:15px}.mini-day{height:5px;border-radius:3px;background:#ebefeb}.mini-day.rated{background:var(--day-color)}
+.editor-panel{position:sticky;top:24px}.editor-panel .large-auto{font-size:41px;letter-spacing:-1.6px;line-height:1.2;font-weight:800;margin:16px 0 2px;font-variant-numeric:tabular-nums}.editor-panel .large-auto small{font-size:18px;color:#aab6ad}.editor-panel .divider{height:1px;background:var(--border);margin:22px 0}.field-label{display:block;color:#4f675c;font-weight:750;font-size:12px;margin-bottom:9px}.field-help{font-size:11px;color:#a1ada5;line-height:1.6;margin-top:7px}.rating-row{display:flex;gap:8px;align-items:center}.rating-input{background:#fcfdfb;width:100%;min-width:0;border:1px solid #dfe8e0;border-radius:10px;padding:11px 12px;color:#1d4030;font-size:16px;font-weight:750;outline:0}.rating-input:focus,.notes-input:focus{border-color:#93bda2;outline:3px solid #c2ddc955}.clear-btn{border:1px solid #e4ebe5;border-radius:9px;background:#fff;color:#73847a;padding:11px 12px;white-space:nowrap;font-weight:700;font-size:11px}.clear-btn:hover{background:#f7f9f6}.notes-input{width:100%;min-height:176px;resize:vertical;background:#fcfdfb;border:1px solid #dfe8e0;border-radius:12px;padding:13px 14px;font-size:13px;color:#314238;line-height:1.75;outline:0}.notes-input::placeholder{color:#b3bfb5}.save-caption{font-size:11px;color:#a0b0a3;margin-top:8px;display:flex;gap:7px;align-items:center}
+.calendar{margin-top:18px}.weekdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin-bottom:8px}.weekdays span{text-align:center;color:#a3afa7;font-size:10px;text-transform:uppercase;font-weight:850;letter-spacing:.9px;padding:7px 0}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.day-cell{min-height:92px;background:#fcfdfb;border:1px solid #edf1ec;border-radius:11px;display:flex;flex-direction:column;justify-content:space-between;padding:11px 11px 9px;text-align:left;transition:transform .15s,border-color .15s}.day-cell:hover{border-color:#91bfa1;transform:translateY(-1px)}.day-cell.is-today{border-color:#64a780;box-shadow:inset 0 0 0 1px #64a780}.day-cell.rated{background:var(--day-bg);border-color:var(--day-border)}.day-cell.rated:hover{border-color:#6eab87}.day-number{font-size:12px;color:#708477;font-weight:740}.day-cell.is-today .day-number{color:var(--green-dark)}.day-score{font-size:18px;font-weight:850;letter-spacing:-.5px;line-height:1.2;color:#305547;font-variant-numeric:tabular-nums}.day-score.empty{font-size:12px;color:#c1ccc4;font-weight:550}.note-mark{width:5px;height:5px;border-radius:100%;background:#48926e;display:inline-block;margin-left:auto;vertical-align:middle}.day-cell.is-empty{border-color:transparent;background:transparent;pointer-events:none;min-height:92px}.calendar-key{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:20px;color:#9daaa1;font-size:11px}.key-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;background:#dfece2;vertical-align:middle}.key-dot.high{background:#6ab18c}.key-dot.low{background:#efc3b1}
+.day-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.75fr);gap:18px;align-items:start}.day-form-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:24px}.big-date{font-size:27px;font-weight:800;letter-spacing:-1.15px}.day-sub{font-size:13px;color:#96a39a;margin-top:3px}.rating-banner{padding:21px;border-radius:15px;background:linear-gradient(105deg,#f1f8f2,#fbfdfb);border:1px solid #e3efe5}.rating-banner .field-label{margin-bottom:13px}.score-flex{display:flex;align-items:center;gap:12px}.day-number-input{font-size:35px;letter-spacing:-1px;font-weight:800;color:#246344;width:150px;background:#fff;border:1px solid #dae9dd;border-radius:11px;padding:4px 13px}.score-scale{font-size:16px;font-weight:650;color:#a3b5a9}.quick-heading{margin:24px 0 11px;font-size:12px;color:#83968a;font-weight:700}.score-chips{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}.score-chip{min-width:0;height:36px;border-radius:8px;border:1px solid #e2eae3;background:#fff;color:#6f8676;font-size:12px;font-weight:750}.score-chip:hover{border-color:#81b294;background:#f3faf4}.score-chip.selected{background:#226549;color:#fff;border-color:#226549}.day-notes-area{margin-top:27px}.day-notes-area .notes-input{min-height:260px}.day-side .section-divider{height:1px;background:#e8efe8;margin:21px 0}.mini-stat-title{font-size:11px;color:#97a69b;text-transform:uppercase;letter-spacing:.8px;font-weight:800}.mini-stat-value{font-size:29px;font-weight:850;letter-spacing:-.8px;margin-top:3px}.mini-stat-value small{font-size:13px;color:#abb7ae}.inline-link{font-size:11px;border:0;background:transparent;color:#358361;font-weight:800;text-decoration:underline;text-underline-offset:3px;padding:0;margin-top:7px}.tip-box{margin-top:24px;border-radius:12px;border:1px solid #e6eee8;background:#f8fbf8;padding:14px 15px;color:#8a9e91;font-size:12px;line-height:1.65}
+.empty-state{color:#a0ada4;font-size:12px}.small-note{font-size:11px;color:#9caaa0;margin:14px 0 0;line-height:1.65}.toast{position:fixed;bottom:21px;right:22px;z-index:10;pointer-events:none;opacity:0;transform:translateY(9px);transition:opacity .2s,transform .2s;background:#244d3b;color:white;padding:11px 16px;border-radius:10px;font-size:12px;box-shadow:0 12px 30px #213c3029}.toast.shown{opacity:1;transform:translateY(0)}
+@media(max-width:1210px){.app{grid-template-columns:208px minmax(0,1fr)}.sidebar{padding-left:13px;padding-right:13px}.main{padding:28px 23px 54px}.two-col{grid-template-columns:minmax(0,1fr) 275px}.panel{padding:19px}.month-tile{padding:11px}.calendar-grid{gap:6px}.day-cell{padding:8px;min-height:79px}}
+@media(max-width:950px){.two-col{grid-template-columns:1fr}.editor-panel{position:static}.editor-panel .notes-input{min-height:120px}.day-layout{grid-template-columns:1fr}.month-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.app{display:block}.sidebar{position:static;min-height:0;height:auto;border-bottom:1px solid var(--border);border-right:0;padding:15px 15px 11px;gap:13px}.brand{padding:0 3px}.brand-mark{height:30px;width:30px}.brand strong{font-size:17px}.sidebar-label,.nav-caption,.side-bottom{display:none}.side-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:0}.side-actions button{margin:0;padding:9px 8px;font-size:10px;justify-content:center}.side-actions .side-note{display:none}.nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.nav-btn{justify-content:center;padding:10px 5px;gap:5px;font-size:11px}.nav-icon{width:16px;height:16px}.nav-icon svg{width:16px;height:16px}.main{padding:20px 14px 70px}.topbar{margin-bottom:25px}.page-heading{align-items:flex-start;flex-direction:column}.page-heading h1{font-size:32px}.period-picker{align-self:flex-end;margin-top:-2px}.stats{gap:7px}.stat{padding:13px 10px;border-radius:12px}.stat-label{font-size:9px;letter-spacing:.2px}.stat-label .stat-icon{display:none}.stat-value{font-size:26px}.stat-value small{font-size:10px}.stat-hint{font-size:9px}.panel{padding:16px;border-radius:14px}.month-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.chart{gap:2px}.chart-labels{gap:2px}.calendar-grid{gap:4px}.day-cell,.day-cell.is-empty{min-height:69px;border-radius:8px;padding:6px}.day-number{font-size:10px}.day-score{font-size:14px}.day-score.empty{font-size:11px}.weekdays{gap:4px}.score-chip{font-size:11px}.day-number-input{width:145px}.topright{gap:6px}.today-btn{padding:7px 10px}}
+@media(max-width:390px){.month-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stat-value{font-size:21px}.nav-btn{font-size:10px}.nav-icon{display:none}.calendar-grid{gap:3px}.day-cell,.day-cell.is-empty{min-height:61px}.day-cell{padding:5px}.day-score{font-size:12px}.score-chips{gap:3px}.score-chip{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Display settings: saved independently from journal entries. */
+.preferences{padding:0 7px;margin-top:-14px}
+.setting-label{font-size:10px;letter-spacing:1.55px;font-weight:800;color:#9caaa3;margin:0 0 9px 5px}
+.setting-second{margin-top:20px}
+.setting-choice{display:flex;gap:4px;padding:4px;border-radius:11px;border:1px solid var(--border);background:var(--surface)}
+.setting-choice button{flex:1;min-width:0;border:0;border-radius:7px;padding:8px 3px;background:transparent;color:#82948a;font-size:11px;font-weight:750;white-space:nowrap;transition:background .15s,color .15s}
+.setting-choice button:hover{background:var(--green-wash);color:var(--green-dark)}
+.setting-choice button.choice-active{background:var(--green-wash);color:var(--green-dark);box-shadow:inset 0 0 0 1px #bcdac8}
+/* The light theme preserves the original Daymark palette. */
+html[data-theme="forest"]{color-scheme:dark;--bg:#101815;--surface:#1a2620;--ink:#ebf5ee;--muted:#b4c5ba;--muted2:#92a89a;--border:#30443a;--green:#87d5a9;--green-dark:#addfc0;--green-wash:#253f30;--shadow:0 12px 35px rgba(0,0,0,.12)}
+html[data-theme="forest"] .sidebar{background:#141e19}
+html[data-theme="forest"] .brand small,html[data-theme="forest"] .nav-caption,html[data-theme="forest"] .sidebar-label,html[data-theme="forest"] .setting-label{color:#91aa9a}
+html[data-theme="forest"] .nav-btn{color:#adc3b5}
+html[data-theme="forest"] .nav-btn:hover,html[data-theme="forest"] .nav-btn[aria-current="page"]{background:#253f30;color:#b9edcb}
+html[data-theme="forest"] .setting-choice button{color:#acbeaf}
+html[data-theme="forest"] .setting-choice button.choice-active{color:#b9edcb;box-shadow:inset 0 0 0 1px #426955}
+html[data-theme="forest"] .side-actions button,html[data-theme="forest"] .today-btn,html[data-theme="forest"] .period-picker,html[data-theme="forest"] .stat,html[data-theme="forest"] .month-tile,html[data-theme="forest"] .clear-btn,html[data-theme="forest"] .score-chip{background:#1a2620;border-color:#31473b;color:#bad2c2}
+html[data-theme="forest"] .side-actions button:hover,html[data-theme="forest"] .today-btn:hover,html[data-theme="forest"] .month-tile:hover,html[data-theme="forest"] .clear-btn:hover,html[data-theme="forest"] .score-chip:hover{background:#263a2e;border-color:#5b9776}
+html[data-theme="forest"] .crumbs,html[data-theme="forest"] .topright,html[data-theme="forest"] .subtitle,html[data-theme="forest"] .panel-description,html[data-theme="forest"] .stat-label,html[data-theme="forest"] .stat-hint,html[data-theme="forest"] .month-tile-count,html[data-theme="forest"] .day-sub,html[data-theme="forest"] .field-help,html[data-theme="forest"] .save-caption,html[data-theme="forest"] .small-note,html[data-theme="forest"] .side-note,html[data-theme="forest"] .side-bottom{color:#a0b4a7}
+html[data-theme="forest"] .crumbs strong,html[data-theme="forest"] .field-label,html[data-theme="forest"] .day-score,html[data-theme="forest"] .day-number{color:#d5e9db}
+html[data-theme="forest"] .eyebrow,html[data-theme="forest"] .inline-link{color:#8fd4a8}
+html[data-theme="forest"] .period-picker button{color:#c0d6c6}
+html[data-theme="forest"] .period-picker button:hover{background:#2b4233;color:#e0f9e6}
+html[data-theme="forest"] .stat-value small,html[data-theme="forest"] .editor-panel .large-auto small,html[data-theme="forest"] .mini-stat-value small,html[data-theme="forest"] .score-scale{color:#aec0b2}
+html[data-theme="forest"] .panel-meta{color:#bad1c0;background:#27392f}
+html[data-theme="forest"] .month-tile-score.empty,html[data-theme="forest"] .day-score.empty{color:#7f9b8a}
+html[data-theme="forest"] .mini-day,html[data-theme="forest"] .chart-col.no-data .chart-bar{background:#30463a}
+html[data-theme="forest"] .axis,html[data-theme="forest"] .chart-labels span,html[data-theme="forest"] .calendar-key,html[data-theme="forest"] .weekdays span,html[data-theme="forest"] .mini-stat-title{color:#a4b9a9}
+html[data-theme="forest"] .chart{background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),#2c3c32 calc(25% - 1px),#2c3c32 25%)}
+html[data-theme="forest"] .day-cell{background:#1d2a22;border-color:#30463b}
+html[data-theme="forest"] .day-cell.rated{background:var(--day-bg);border-color:var(--day-border)}
+html[data-theme="forest"] .day-cell.is-empty{background:transparent;border-color:transparent}
+html[data-theme="forest"] .day-cell.is-today{border-color:#87cba2}
+html[data-theme="forest"] .notes-input,html[data-theme="forest"] .rating-input,html[data-theme="forest"] .day-number-input{background:#111d16;border-color:#3c5545;color:#e7f6ea}
+html[data-theme="forest"] .notes-input::placeholder{color:#81998a}
+html[data-theme="forest"] .rating-banner{background:linear-gradient(120deg,#1d3426,#18251e);border-color:#36543e}
+html[data-theme="forest"] .score-chip.selected{background:#317d55;color:#fff;border-color:#4c9e71}
+html[data-theme="forest"] .day-side .section-divider{background:#30443a}
+html[data-theme="forest"] .tip-box{border-color:#344b3c;background:#202e25;color:#b7cabe}
+html[data-theme="forest"] .tip-box strong{color:#a9dcb8!important}
+html[data-theme="forest"] .toast{background:#2e503b;color:#f4fff5}
+@media(max-width:700px){
+ .preferences{display:grid;grid-template-columns:auto 1fr auto 1fr;align-items:center;gap:7px;margin-top:0;padding:0}
+ .setting-label,.setting-second{font-size:9px;margin:0;letter-spacing:.65px}
+ .setting-choice{min-width:0}
+ .setting-choice button{font-size:10px;padding:8px 2px}
+ .side-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .score-chips{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media(max-width:420px){.preferences{grid-template-columns:1fr 1fr;row-gap:5px}.setting-label,.setting-second{grid-row:1}.setting-choice{grid-row:2}}
+
+/* Shared theme tokens keep every component consistent, including true neutral dark. */
+html[data-theme="light"]{--bg:#f6f7f5;--surface:#fff;--ink:#202a2a;--muted:#62746a;--muted2:#76867c;--border:#dfe7e1;--green:#276a57;--green-dark:#1c5948;--green-wash:#eaf4ef}
+html[data-theme="dark"]{color-scheme:dark;--bg:#09090b;--surface:#141416;--ink:#f0f0f3;--muted:#b2b2bc;--muted2:#93939f;--border:#2b2b31;--green:#c4c4d0;--green-dark:#e0e0e9;--green-wash:#252529;--shadow:0 10px 40px #0003}
+html[data-theme="forest"]{--muted:#b4c5ba;--muted2:#92a89a}
+html[data-theme="midnight"]{color-scheme:dark;--bg:#0c1020;--surface:#151b31;--ink:#edf0ff;--muted:#b0b9da;--muted2:#8e9abc;--border:#2b3452;--green:#a3b4ff;--green-dark:#c4cfff;--green-wash:#252e51;--shadow:0 10px 40px #0003}
+html[data-theme="lavender"]{--bg:#f5f1fc;--surface:#fefcff;--ink:#342744;--muted:#7c698e;--muted2:#89769a;--border:#e8ddf1;--green:#7754b3;--green-dark:#654294;--green-wash:#eee6f8}
+html[data-theme="rose"]{--bg:#fff3f5;--surface:#fffcfd;--ink:#472b35;--muted:#896474;--muted2:#96717e;--border:#efdae2;--green:#b6466c;--green-dark:#973557;--green-wash:#fce6ef}
+html[data-theme="sunset"]{--bg:#fff6eb;--surface:#fffdfa;--ink:#493525;--muted:#8d7058;--muted2:#9c7c64;--border:#eddccc;--green:#a95632;--green-dark:#904424;--green-wash:#f9e7d7}
+html[data-theme="ocean"]{--bg:#edf7fb;--surface:#fcfeff;--ink:#243b47;--muted:#5f7e8b;--muted2:#6d8994;--border:#d6e7ef;--green:#25748a;--green-dark:#205f71;--green-wash:#dff1f6}
+html[data-theme] .sidebar{background:color-mix(in srgb,var(--surface) 65%,var(--bg));overflow-y:auto;gap:22px}
+html[data-theme] :is(.brand small,.nav-caption,.sidebar-label,.setting-label,.side-note,.side-bottom,.crumbs,.topright,.subtitle,.panel-description,.stat-label,.stat-hint,.month-tile-count,.day-sub,.field-help,.save-caption,.small-note,.axis,.chart-labels span,.calendar-key,.weekdays span,.mini-stat-title,.quick-heading){color:var(--muted)}
+html[data-theme] :is(.nav-btn,.setting-choice button){color:var(--muted)}
+html[data-theme] :is(.nav-btn:hover,.nav-btn[aria-current="page"],.setting-choice button.choice-active){background:var(--green-wash);color:var(--green-dark);box-shadow:none}
+html[data-theme] :is(.side-actions button,.today-btn,.period-picker,.stat,.month-tile,.clear-btn,.score-chip){background:var(--surface);border-color:var(--border);color:var(--ink)}
+html[data-theme] :is(.side-actions button:hover,.today-btn:hover,.month-tile:hover,.clear-btn:hover,.score-chip:hover){background:var(--green-wash);border-color:var(--green)}
+html[data-theme] :is(.crumbs strong,.field-label,.day-score,.day-number,.period-picker button){color:var(--ink)}
+html[data-theme] :is(.eyebrow,.inline-link){color:var(--green-dark)}
+html[data-theme] .brand-mark{background:var(--green-dark);color:var(--surface)}
+html[data-theme] :is(.stat-value small,.editor-panel .large-auto small,.mini-stat-value small,.score-scale){color:var(--muted2)}
+html[data-theme] .panel-meta{color:var(--muted);background:var(--bg)}
+html[data-theme] :is(.month-tile-score.empty,.day-score.empty){color:var(--muted2)}
+html[data-theme] :is(.mini-day,.chart-col.no-data .chart-bar){background:var(--border)}
+html[data-theme] .chart{background:repeating-linear-gradient(to top,transparent 0,transparent calc(25% - 1px),var(--border) calc(25% - 1px),var(--border) 25%)}
+html[data-theme] .day-cell{background:var(--surface);border-color:var(--border)}
+html[data-theme] .day-cell.rated{background:var(--day-bg);border-color:var(--day-border)}
+html[data-theme] .day-cell.is-empty{background:transparent;border-color:transparent}
+html[data-theme] .day-cell.is-today{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+html[data-theme] :is(.notes-input,.rating-input,.day-number-input){background:var(--bg);color:var(--ink);border-color:var(--border)}
+html[data-theme] .notes-input::placeholder{color:var(--muted2)}
+html[data-theme] .rating-banner{background:var(--green-wash);border-color:var(--border)}
+html[data-theme] .score-chip.selected{background:var(--green-dark);color:var(--surface);border-color:var(--green-dark)}
+html[data-theme] .day-side .section-divider{background:var(--border)}
+html[data-theme] .tip-box{background:var(--bg);border-color:var(--border);color:var(--muted)}
+html[data-theme] .tip-box strong{color:var(--green-dark)!important}
+html[data-theme] .toast{background:var(--ink);color:var(--surface)}
+html[data-theme] .status-dot,html[data-theme] .note-mark{background:var(--green)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--green);outline-offset:3px}
+select,input[type="date"],input[data-pref]{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--border);border-radius:9px;padding:9px;min-width:0}
+select{cursor:pointer;max-width:190px}
+.preferences{padding:0;margin-top:0}.preferences .nav-btn{font-size:12px}.nav-count{margin-left:auto;font-size:10px;padding:2px 6px;border-radius:6px;background:var(--surface)}
+.date-jump{display:grid;gap:6px;padding:12px;color:var(--muted);font-size:11px}.date-jump input{width:100%;font-size:12px}
+.brand small{max-width:155px;overflow-wrap:anywhere}.brand strong{display:block}
+.journey{display:flex;align-items:center;gap:24px;background:linear-gradient(120deg,var(--green-wash),var(--surface));border:1px solid var(--border);border-radius:17px;padding:17px 21px;margin:0 0 26px;box-shadow:var(--shadow)}
+.journey-streak{display:flex;align-items:center;gap:12px}.flame{font-size:28px}.journey-streak strong{font-size:24px;line-height:1.1}.journey-streak strong span{font-size:13px;font-weight:650}.journey small{display:block;color:var(--muted);font-size:11px;margin-top:3px}.journey-best{padding-left:22px;border-left:1px solid var(--border)}.journey-best small{font-size:9px;letter-spacing:.7px}.journey-best strong{font-size:16px}.journey-goal{flex:1;min-width:105px;max-width:210px;margin-left:auto}.journey-goal>div{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--muted);margin-bottom:5px}.journey-goal strong{color:var(--ink);font-weight:650}.journey-awards{border:0;background:var(--surface);border-radius:10px;padding:10px 13px;color:var(--green-dark);white-space:nowrap;font-weight:700;font-size:13px}.journey-awards span{font-size:11px}
+progress{width:100%;height:7px;border:0;border-radius:20px;overflow:hidden;background:var(--border);accent-color:var(--green)}progress::-webkit-progress-bar{background:var(--border);border-radius:20px}progress::-webkit-progress-value{background:var(--green);border-radius:20px}progress::-moz-progress-bar{background:var(--green);border-radius:20px}
+.awards-summary{display:grid;grid-template-columns:1fr 1fr;gap:25px;align-items:center;margin-bottom:24px;background:linear-gradient(120deg,var(--green-wash),var(--surface))}.shelf-trophy{font-size:34px}.awards-summary h2{font-size:21px;margin:10px 0 5px;letter-spacing:-.5px}.awards-summary p{font-size:12px;color:var(--muted);margin:0 0 16px}.shelf-stats{display:flex;gap:25px;justify-content:space-around}.shelf-stats strong{font-size:28px;letter-spacing:-1px}.shelf-stats small{display:block;font-size:11px;color:var(--muted);font-weight:500;letter-spacing:0}
+.award-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px}.award-filters button{padding:9px 14px;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--muted);font-size:12px;font-weight:650}.award-filters button[aria-pressed="true"]{background:var(--green-dark);color:var(--surface);border-color:var(--green-dark)}
+.award-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.award-card{padding:23px;border:1px solid var(--border);border-radius:17px;background:var(--surface);position:relative;transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column}.award-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}.award-card.earned{border-color:color-mix(in srgb,var(--green) 55%,var(--border));background:linear-gradient(145deg,var(--green-wash),var(--surface))}.award-icon{font-size:32px;margin-bottom:18px;line-height:1.2}.locked .award-icon{filter:grayscale(.75);opacity:.65}.award-card-top{display:flex;justify-content:space-between;gap:5px;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}.earned .award-card-top span:last-child{color:var(--green-dark);font-weight:800}.award-card h2{font-size:15px;letter-spacing:-.25px;margin:9px 0 6px}.award-card p{font-size:12px;line-height:1.7;color:var(--muted);margin:0 0 20px;flex:1}.award-card small{font-size:10px;color:var(--muted);margin-top:7px}
+.theme-panel{margin-bottom:22px}.theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}.theme-card{padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:13px;text-align:left;color:var(--ink);transition:transform .2s,border-color .2s}.theme-card:hover{transform:translateY(-2px);border-color:var(--green)}.theme-card[aria-pressed="true"]{outline:2px solid var(--green);outline-offset:2px}.theme-preview{display:flex;height:73px;border:1px solid #80808020;border-radius:8px;align-items:flex-end;gap:7px;padding:13px 15px;position:relative}.theme-preview i{display:block;width:12px;height:25px;border-radius:4px;background:var(--swatch-accent);opacity:.5}.theme-preview i:nth-child(2){height:35px;opacity:.75}.theme-preview i:nth-child(3){height:45px;opacity:1}.theme-preview>span{margin-left:auto;align-self:center;font-size:22px;font-weight:700;color:var(--swatch-accent)}.theme-card strong{display:block;font-size:12px;margin:9px 1px 3px}.theme-card small{display:block;color:var(--muted);font-size:10px;margin:0 1px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}.setting-row{display:flex;gap:15px;justify-content:space-between;align-items:center;padding:17px 0;border-bottom:1px solid var(--border)}.setting-row:last-child{border-bottom:0}.setting-row>span{min-width:0}.setting-row strong{display:block;font-size:12px;font-weight:700}.setting-row small{display:block;font-size:11px;color:var(--muted);margin-top:3px;max-width:250px}.setting-row input:not([type="checkbox"]):not([type="color"]){max-width:155px;width:45%;font-size:12px}.setting-row select{font-size:12px;max-width:46%}.setting-row input[type="color"]{padding:3px;width:45px;height:32px;cursor:pointer}.toggle{appearance:none;-webkit-appearance:none;width:37px;height:22px;border-radius:20px;background:var(--border);flex:none;position:relative;cursor:pointer;transition:background .2s;margin:0}.toggle:before{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:var(--surface);border-radius:50%;box-shadow:0 1px 3px #0003;transition:transform .2s}.toggle:checked{background:var(--green-dark)}.toggle:checked:before{transform:translateX(15px)}.backup-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.note-prompt{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:11px 13px;margin-bottom:17px;border-radius:10px;background:var(--green-wash);color:var(--green-dark);font-size:12px}.note-prompt button{border:0;background:transparent;color:inherit;font-size:20px;padding:0 3px}
+.award-popup{position:fixed;bottom:23px;right:24px;width:min(430px,calc(100vw - 28px));z-index:40;display:flex;gap:18px;padding:22px 36px 22px 22px;border:1px solid var(--green);border-radius:20px;background:var(--surface);box-shadow:0 20px 80px #0004;animation:award-enter .4s ease-out}.award-popup[hidden]{display:none}.award-popup-icon{font-size:40px;align-self:center}.award-popup .eyebrow{font-size:9px;letter-spacing:1.4px;margin-bottom:5px}.award-popup strong{font-size:16px}.award-popup p{font-size:12px;color:var(--muted);margin:5px 0 10px}.award-popup button:not(.popup-close){background:none;border:0;padding:0;color:var(--green-dark);font-size:11px;font-weight:750}.popup-close{position:absolute;right:9px;top:8px;width:28px;height:28px;background:none;border:0;color:var(--muted);font-size:22px}.toast{bottom:12px;left:50%;right:auto;transform:translate(-50%,9px);max-width:calc(100vw - 30px);text-align:center}.toast.shown{transform:translate(-50%,0)}
+#confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}.confetti{position:absolute;top:-20px;width:8px;height:13px;border-radius:2px;animation:confetti-fall 2s var(--delay) ease-in forwards}@keyframes confetti-fall{to{transform:translate(var(--drift),105vh) rotate(580deg);opacity:0}}@keyframes award-enter{from{opacity:0;transform:translateY(25px) scale(.97)}to{opacity:1;transform:none}}
+html[data-font="serif"] body{font-family:Georgia,'Times New Roman',serif}html[data-font="mono"] body{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+html[data-text-size="large"] body{font-size:16px}html[data-text-size="large"] :is(.subtitle,.panel-description,.notes-input,.field-help,.small-note,.setting-row small,.award-card p){font-size:14px}html[data-text-size="large"] :is(.nav-btn,.field-label,.setting-row strong){font-size:14px}
+html[data-density="compact"] .panel{padding:17px}html[data-density="compact"] .day-cell{min-height:68px}html[data-density="compact"] .main{padding-top:21px}html[data-density="compact"] .journey{padding:11px 17px}html[data-density="compact"] .setting-row{padding:13px 0}
+html[data-corners="square"] :is(.panel,.stat,.month-tile,.day-cell,.journey,.award-card,.theme-card,.award-popup){border-radius:5px}
+html[data-heatmap="false"] .day-cell.rated{background:var(--surface);border-color:var(--border)}html[data-heatmap="false"] .mini-day.rated{background:var(--green)}
+html[data-motion="false"] *,html[data-motion="false"] *:before,html[data-motion="false"] *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+[hidden]{display:none!important}
+@media(max-width:1200px){.journey{gap:14px;padding:15px}.journey-best{padding-left:14px}.journey-awards span{display:none}.award-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:950px){.settings-grid{grid-template-columns:1fr}.journey-best{display:none}.theme-grid{gap:10px}.theme-card{padding:10px}.awards-summary{grid-template-columns:1fr}.shelf-stats{justify-content:flex-start}}
+@media(max-width:700px){html[data-theme] .sidebar{gap:13px;overflow:visible}.preferences{display:grid;grid-template-columns:1fr 1fr;gap:5px}.preferences .setting-label{display:none}.preferences .nav-btn{font-size:11px;padding:9px 4px}.date-jump{grid-column:1/-1;display:flex;align-items:center;padding:0 3px;gap:12px}.date-jump input{max-width:160px;padding:6px}.journey{flex-wrap:wrap;margin-bottom:21px;gap:10px}.journey-streak{gap:8px}.journey-streak strong{font-size:21px}.journey-streak strong span{font-size:11px}.journey-streak small{font-size:10px}.flame{font-size:24px}.journey-goal{max-width:none;flex:1;min-width:105px}.journey-awards{padding:8px;font-size:11px}.theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.theme-card small{min-height:28px}.award-grid{gap:10px}.award-card{padding:16px}.award-card-top{font-size:8px;letter-spacing:.4px}.award-card h2{font-size:14px}.award-card p{font-size:11px}.award-popup{right:14px;bottom:16px;padding:18px 30px 18px 17px;gap:12px}.award-popup-icon{font-size:32px}.awards-summary h2{font-size:19px}.award-filters button{padding:8px 11px}.shelf-stats{gap:25px}.settings-grid{gap:15px}}
+@media(max-width:400px){.journey-goal{order:3;flex-basis:100%}.journey-awards{margin-left:auto}.theme-preview{height:62px}.award-card-top{flex-direction:column;gap:3px}.setting-row{gap:8px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="award-popup" class="award-popup" role="status" aria-live="polite" hidden></div><div id="confetti-layer" aria-hidden="true"></div>
+<input type="file" id="import-file" accept=".json,application/json" hidden />
+<script>
+(() => {
+'use strict';
+const STORAGE_KEY = 'daymark-rating-journal-v1'; // Do not change: preserves existing entries.
+const PREFERENCES_KEY = 'daymark-rating-journal-preferences-v2';
+const THEMES = [
+  ['light','Daylight','A fresh, quiet canvas','#f6f7f5','#276a57'],
+  ['dark','True dark','Charcoal, black & silver','#09090b','#c4c4d0'],
+  ['forest','Forest','The original dark green','#101815','#87d5a9'],
+  ['midnight','Midnight','Indigo after hours','#0c1020','#a3b4ff'],
+  ['lavender','Lavender','A little softer, a little purple','#f5f1fc','#7754b3'],
+  ['rose','Rose','Warm pink & cherry','#fff3f5','#b6466c'],
+  ['sunset','Sunset','Peach, paper & terracotta','#fff6eb','#a95632'],
+  ['ocean','Ocean','Cool blue & sea glass','#edf7fb','#25748a'],
+  ['system','Automatic','Follow your device theme','#e4e4e7','#707080']
+];
+const DEFAULT_PREFS = {theme:'light',scale:'ten',journalName:'PERSONAL JOURNAL',weekStart:'monday',startView:'year',font:'sans',textSize:'normal',density:'comfortable',corners:'soft',accent:'',heatmap:true,motion:true,popups:true,confetti:true,streakBanner:true,prompts:true,personalRatings:true,monthlyGoal:'15'};
+function validatePreferences(raw) {
+  const out={};if(!raw||typeof raw!=='object')return out;
+  const choices={theme:THEMES.map(t=>t[0]),scale:['ten','percent'],weekStart:['monday','sunday'],startView:['day','month','year'],font:['sans','serif','mono'],textSize:['normal','large'],density:['comfortable','compact'],corners:['soft','square'],monthlyGoal:['5','10','15','20','full']};
+  for(const [key,values] of Object.entries(choices))if(values.includes(raw[key]))out[key]=raw[key];
+  for(const key of ['heatmap','motion','popups','confetti','streakBanner','prompts','personalRatings'])if(typeof raw[key]==='boolean')out[key]=raw[key];
+  if(typeof raw.journalName==='string')out.journalName=raw.journalName.trim().slice(0,40)||DEFAULT_PREFS.journalName;
+  if(raw.accent===''||/^#[0-9a-f]{6}$/i.test(raw.accent))out.accent=raw.accent;
+  return out;
+}
+const uiPrefs={...DEFAULT_PREFS};
+try {Object.assign(uiPrefs,validatePreferences(JSON.parse(localStorage.getItem(PREFERENCES_KEY)||'{}')));}catch(e){}
+const systemTheme=window.matchMedia('(prefers-color-scheme: dark)');
+function resolvedTheme(){return uiPrefs.theme==='system'?(systemTheme.matches?'dark':'light'):uiPrefs.theme;}
+function isDarkTheme(){return ['dark','forest','midnight'].includes(resolvedTheme());}
+function savePreferences(){try{localStorage.setItem(PREFERENCES_KEY,JSON.stringify(uiPrefs));}catch(e){toast('Preference works, but could not be stored.');}}
+function applyTheme(){
+  const root=document.documentElement;
+  root.dataset.theme=resolvedTheme();
+  for(const key of ['font','textSize','density','corners'])root.dataset[key]=uiPrefs[key];
+  root.dataset.motion=String(uiPrefs.motion);root.dataset.heatmap=String(uiPrefs.heatmap);
+  root.style.removeProperty('--green');root.style.removeProperty('--green-dark');root.style.removeProperty('--green-wash');
+  if(uiPrefs.accent){root.style.setProperty('--green',uiPrefs.accent);root.style.setProperty('--green-dark',uiPrefs.accent);root.style.setProperty('--green-wash',`color-mix(in srgb, ${uiPrefs.accent} 13%, var(--surface))`);}
+  document.querySelector('meta[name="theme-color"]').content=THEMES.find(t=>t[0]===resolvedTheme())[3];
+}
+applyTheme();
+systemTheme.addEventListener('change',()=>{if(uiPrefs.theme==='system'){applyTheme();render();}});
+function changePreference(type,value){
+  const change=validatePreferences({[type]:value});if(!(type in change))return;
+  Object.assign(uiPrefs,change);savePreferences();applyTheme();render();
+}
+const isPercent = () => uiPrefs.scale === 'percent';
+const numberFormat = (number,max=1) => new Intl.NumberFormat('en-US',{minimumFractionDigits:0,maximumFractionDigits:max}).format(number);
+const inputRating = n => n == null ? '' : String(Number((isPercent() ? n*10 : n).toPrecision(12))); // Preserve entered precision; summaries round to tenths.
+const scaleSuffix = () => isPercent() ? '' : '/ 10';
+const scoreRange = () => isPercent() ? '0 to 100%' : '0 to 10';
+const ratingAttributes = () => `min="0" max="${isPercent()?100:10}" step="any" inputmode="decimal" placeholder="${isPercent()?'0–100%':'0–10'}"`;
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const weekdays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const today = new Date();
+const pad = n => String(n).padStart(2,'0');
+const iso = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+const monthKey = (y,m) => `${y}-${pad(m+1)}`;
+const getDays = (y,m) => new Date(y,m+1,0).getDate();
+const showScore = n => n == null ? '—' : (isPercent() ? numberFormat(n*10)+'%' : new Intl.NumberFormat('en-US',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n));
+const escapeHTML = v => String(v == null ? '' : v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const validRating = n => typeof n === 'number' && Number.isFinite(n) && n>=0 && n<=10;
+const makeBlank = () => ({days:{},months:{},years:{}});
+function sanitize(raw) {
+  const source = raw && typeof raw === 'object' ? (raw.data && typeof raw.data === 'object' ? raw.data : raw) : {};
+  const fresh = makeBlank();
+  for (const [section,pattern] of [['days',/^\d{4}-\d{2}-\d{2}$/],['months',/^\d{4}-\d{2}$/],['years',/^\d{4}$/]]) {
+    const entries = source[section];
+    if (!entries || typeof entries !== 'object' || Array.isArray(entries)) continue;
+    for (const [key,record] of Object.entries(entries)) {
+      if (!pattern.test(key) || !record || typeof record !== 'object') continue;
+      const rating = Number(record.rating);
+      // Import only real numeric ratings; a null/empty rating means unrated.
+      const safeRating = record.rating === null || record.rating === '' || record.rating === undefined ? null : (validRating(rating) ? rating : null);
+      const notes = typeof record.notes === 'string' ? record.notes.slice(0,100000) : '';
+      if (safeRating !== null || notes) fresh[section][key] = {rating:safeRating,notes};
+    }
+  }
+  return fresh;
+}
+let data;
+let storageAvailable = true;
+try { data = sanitize(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); }
+catch(e) { data = makeBlank(); storageAvailable = false; }
+const state = {view:uiPrefs.startView,year:today.getFullYear(),month:today.getMonth(),day:iso(today.getFullYear(),today.getMonth(),today.getDate())};
+const app = document.getElementById('app');
+const fileInput = document.getElementById('import-file');
+let toastTimer;
+function toast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message; el.classList.add('shown');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('shown'),2200);
+}
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY,JSON.stringify(data));storageAvailable = true; }
+  catch(e) {storageAvailable = false;toast('Browser storage unavailable. Export a backup.');}
+  const badge = document.getElementById('storage-status');
+  if (badge) badge.textContent = storageAvailable ? 'Auto-saved to this browser' : 'Storage unavailable — export a backup';
+}
+function entry(section,key) { return data[section][key] || {rating:null,notes:''}; }
+function updateEntry(section,key,field,value) {
+  const updated = {...entry(section,key),[field]:value};
+  if (updated.rating == null && !updated.notes) delete data[section][key];
+  else data[section][key] = updated;
+  persist();
+  scheduleAwards(field === 'notes');
+}
+function monthStats(y,m) {
+  let sum=0,count=0;
+  for(let d=1;d<=getDays(y,m);d++) {
+    const r=entry('days',iso(y,m,d)).rating;
+    if(validRating(r)){sum+=r;count++;}
+  }
+  return {average:count?sum/count:null,count,days:getDays(y,m)};
+}
+function yearStats(y) {
+  const months = MONTHS.map((_,m)=>monthStats(y,m));
+  const ratedMonths = months.filter(x=>x.average!==null);
+  const loggedDays = months.reduce((sum,s)=>sum+s.count,0);
+  return {average:ratedMonths.length ? ratedMonths.reduce((sum,s)=>sum+s.average,0)/ratedMonths.length : null, ratedMonths:ratedMonths.length,loggedDays,months};
+}
+function palette(score) {
+  const progress = Math.min(1,Math.max(0,(score??5)/10));
+  const hue=12+progress*133;
+  return isDarkTheme()
+    ? {solid:`hsl(${hue} 54% 61%)`,bg:`hsl(${hue} 23% 21%)`,border:`hsl(${hue} 24% 34%)`}
+    : {solid:`hsl(${hue} 43% 55%)`,bg:`hsl(${hue} 50% 96%)`,border:`hsl(${hue} 40% 87%)`};
+}
+function icon(type) {
+  const p = {
+    year:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7.5 13h2M14.5 13h2M7.5 17h2"/>',
+    month:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 13h1M12 13h1M16 13h1M8 17h1M12 17h1M16 17h1"/>',
+    day:'<path d="M5 3h14v18H5zM9 3v4M15 3v4M5 9h14M9 14h6M9 17h4"/>',
+    down:'<path d="M12 3v13m-5-5 5 5 5-5M4 17v4h16v-4"/>',
+    up:'<path d="M12 21V8m-5 5 5-5 5 5M4 7V3h16v4"/>'
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${p[type]}</svg>`;
+}
+function renderNavigation() {
+  return `<aside class="sidebar">
+    <div class="brand"><div class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18 9 11l4 3 7-9"/><path d="M4 21h16"/></svg></div><div><strong>daymark.</strong><small>${escapeHTML(uiPrefs.journalName)}</small></div></div>
+    <div><p class="nav-caption">YOUR JOURNAL</p><nav class="nav" aria-label="Views">
+    ${[['year','Year overview'],['month','Month calendar'],['day','Daily journal']].map(([v,label])=>`<button class="nav-btn" type="button" data-action="view" data-view="${v}" ${state.view===v?'aria-current="page"':''}><span class="nav-icon">${icon(v)}</span>${label}</button>`).join('')}
+    </nav></div>
+    <div class="preferences"><div class="setting-label">MAKE IT YOURS</div><button class="nav-btn" type="button" data-action="view" data-view="awards" ${state.view==='awards'?'aria-current="page"':''}><span aria-hidden="true">🏆</span> Awards <span class="nav-count">${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}</span></button><button class="nav-btn" type="button" data-action="view" data-view="settings" ${state.view==='settings'?'aria-current="page"':''}><span aria-hidden="true">⚙</span> Settings & themes</button><label class="date-jump">Jump to a date<input type="date" id="date-jump" value="${state.day}" min="0100-01-01" max="9999-12-31" /></label></div>
+    <div class="side-actions"><p class="sidebar-label">YOUR DATA</p><button type="button" data-action="export"><span class="nav-icon">${icon('down')}</span> Export backup (.json)</button><button type="button" data-action="import"><span class="nav-icon">${icon('up')}</span> Import backup (.json)</button><p class="side-note">Entries stay in this browser, not in your GitHub repository. If moving from the old HTML file or another device, export a JSON backup there and import it here.</p></div>
+    <div class="side-bottom"><span class="status-dot"></span><span id="storage-status">${storageAvailable?'Auto-saved to this browser':'Storage unavailable — export a backup'}</span></div>
+    </aside>`;
+}
+function periodLabel() {
+  if(state.view==='year')return String(state.year);
+  if(state.view==='month')return `${MONTHS[state.month]} ${state.year}`;
+  const [y,m,d]=state.day.split('-').map(Number);
+  return `${SHORT[m-1]} ${d}, ${y}`;
+}
+function heading(title,subtitle,kicker) {
+  return `<div class="topbar"><div class="crumbs">Your journal <span style="color:#bac6bd">/</span> <strong>${state.view==='year'?'Year overview':state.view==='month'?'Month calendar':'Daily journal'}</strong></div><div class="topright"><button type="button" data-action="today" class="today-btn">Go to today ↗</button></div></div>
+  <div class="page-heading"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div><div class="period-picker"><button type="button" data-action="previous" aria-label="Previous ${state.view}">‹</button><span>${escapeHTML(periodLabel())}</span><button type="button" data-action="next" aria-label="Next ${state.view}">›</button></div></div>`;
+}
+function stat(label,value,suffix,hint,symbol) {
+  return `<div class="stat"><div class="stat-label"><span class="stat-icon">${symbol}</span>${label}</div><div class="stat-value">${value}<small>${suffix||''}</small></div><div class="stat-hint">${hint}</div></div>`;
+}
+function reflectionPanel(section,key,aggregate,help) {
+  const e=entry(section,key);
+  const noun=section==='years'?'year':'month';
+  return `<aside class="panel editor-panel"><div class="eyebrow">${noun}ly reflection</div><h2 class="panel-title" style="margin-top:11px">${noun==='year'?'The bigger picture':'Looking back'}</h2>
+    <p class="panel-description">Your personal space for this ${noun}.</p><div class="large-auto">${showScore(aggregate)} <small>${scaleSuffix()}</small></div><div class="field-help">${help}</div>
+    <div class="personal-rating" ${uiPrefs.personalRatings?'':'hidden'}><div class="divider"></div><label class="field-label" for="personal-score">Your own ${noun} rating <span style="color:#a8b8aa;font-weight:500">(optional)</span></label>
+    <div class="rating-row"><input id="personal-score" class="rating-input" type="number" ${ratingAttributes()} value="${inputRating(e.rating)}" data-rating="1" data-section="${section}" data-key="${key}" aria-label="Your personal ${noun} rating, ${scoreRange()}"/><button type="button" class="clear-btn" data-action="clear-rating" data-section="${section}" data-key="${key}">Clear</button></div>
+    <p class="field-help">Your personal rating is separate and does not alter the calculated average.</p></div>
+    <div class="divider"></div><label class="field-label" for="period-notes">${noun==='year'?'Year':'Month'} notes</label>
+    <textarea id="period-notes" class="notes-input" placeholder="Highlights, challenges, things to remember…" data-notes="1" data-section="${section}" data-key="${key}">${escapeHTML(e.notes)}</textarea>
+    <div class="save-caption"><span class="status-dot"></span> Changes save automatically</div></aside>`;
+}
+function renderYear() {
+  const y=state.year;const s=yearStats(y);
+  const bars=s.months.map((m,index)=>{
+    const col = m.average!==null ? palette(m.average).solid : '#e9eeea';
+    return `<button type="button" title="${MONTHS[index]}: ${showScore(m.average)}${m.average===null?'':(isPercent()?'':' / 10')}" aria-label="Open ${MONTHS[index]} ${y}, average ${showScore(m.average)}" class="chart-col ${m.average===null?'no-data':''}" data-action="open-month" data-month="${index}"><span class="chart-bar" style="--bar-height:${m.average===null?0:m.average*10}%;--bar-color:${col}"></span></button>`;
+  }).join('');
+  const cards=s.months.map((m,index)=>{
+    const key=monthKey(y,index);const noted=entry('months',key).notes.trim().length>0;
+    const dots=Array.from({length:m.days},(_,d)=>{const r=entry('days',iso(y,index,d+1)).rating;return `<span class="mini-day ${validRating(r)?'rated':''}" title="${SHORT[index]} ${d+1}: ${showScore(r)}" ${validRating(r)?`style="--day-color:${palette(r).solid}"`:''}></span>`;}).join('');
+    return `<button type="button" class="month-tile" data-action="open-month" data-month="${index}" aria-label="Open ${MONTHS[index]}, ${m.count} rated days"><div class="month-tile-top"><span class="month-tile-name">${MONTHS[index]} ${noted?'•':''}</span><span class="month-tile-score ${m.average===null?'empty':''}">${showScore(m.average)}</span></div><div class="month-tile-count">${m.count} / ${m.days} days rated</div><div class="mini-days" aria-hidden="true">${dots}</div></button>`;
+  }).join('');
+  return `${heading('A year in perspective.','A simple look at the days that shaped your year.','Year overview')}
+    <div class="stats">${stat('Year average',showScore(s.average),scaleSuffix(),'Average of rated months','◉')}${stat('Months rated',s.ratedMonths,'/ 12','Months with at least one rated day','◫')}${stat('Days logged',s.loggedDays,'','Days with a rating','◷')}</div>
+    <div class="two-col"><div class="stack"><section class="panel"><div class="panel-head"><div><h2 class="panel-title">Your year in ratings</h2><p class="panel-description">Monthly averages, each weighted equally in the year average.</p></div><span class="panel-meta">${y}</span></div><div class="chart-guide"><div class="axis">${(isPercent()?['100%','75%','50%','25%','0%']:['10','7.5','5','2.5','0']).map(x=>`<span>${x}</span>`).join('')}</div><div class="chart">${bars}</div></div><div class="chart-labels"><span></span>${SHORT.map(name=>`<span>${name}</span>`).join('')}</div></section><section class="panel"><div class="panel-head"><div><h2 class="panel-title">Explore each month</h2><p class="panel-description">Select a month to see and rate individual days.</p></div></div><div class="month-grid">${cards}</div></section></div>${reflectionPanel('years',String(y),s.average,'Calculated from the averages of months that contain rated days.')}</div>`;
+}
+function renderMonth() {
+  const y=state.year,m=state.month,s=monthStats(y,m),ys=yearStats(y);
+  const first=(new Date(y,m,1).getDay()+(uiPrefs.weekStart==='monday'?6:0))%7;
+  let cells=Array.from({length:first},()=>'<div class="day-cell is-empty" aria-hidden="true"></div>');
+  for(let d=1;d<=s.days;d++){
+    const key=iso(y,m,d),e=entry('days',key),rated=validRating(e.rating),p=palette(e.rating),isToday=key===iso(today.getFullYear(),today.getMonth(),today.getDate());
+    cells.push(`<button type="button" class="day-cell ${rated?'rated':''} ${isToday?'is-today':''}" data-action="open-day" data-day="${key}" style="--day-bg:${p.bg};--day-border:${p.border}" aria-label="${MONTHS[m]} ${d}, ${rated?'rated '+showScore(e.rating)+(isPercent()?'':' out of 10'):'not yet rated'}${e.notes?', has notes':''}"><span class="day-number">${d}${e.notes.trim()?'<span class="note-mark" title="Has notes"></span>':''}</span><span class="day-score ${rated?'':'empty'}">${rated?showScore(e.rating):'—'}</span></button>`);
+  }
+  while(cells.length%7!==0)cells.push('<div class="day-cell is-empty" aria-hidden="true"></div>');
+  return `${heading(MONTHS[m]+', day by day.','Rate your days, revisit your notes, and see the month take shape.','Month calendar')}
+  <div class="stats">${stat('Month average',showScore(s.average),scaleSuffix(),'Average of rated days','◉')}${stat('Days rated',s.count,`/ ${s.days}`,'Unrated days are excluded','◫')}${stat('Year average',showScore(ys.average),scaleSuffix(),'Average of rated months','◷')}</div>
+  <div class="two-col"><div class="stack"><section class="panel"><div class="panel-head"><div><h2 class="panel-title">${MONTHS[m]} ${y}</h2><p class="panel-description">Select any date to add a ${isPercent()?'percentage':'rating'} and notes.</p></div><span class="panel-meta">${s.count} entries</span></div><div class="calendar"><div class="weekdays">${(uiPrefs.weekStart==='monday'?weekdays:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']).map(x=>`<span>${x}</span>`).join('')}</div><div class="calendar-grid">${cells.join('')}</div></div><div class="calendar-key"><span><span class="key-dot low"></span>Lower rating</span><span><span class="key-dot high"></span>Higher rating</span><span><span class="note-mark"></span> Day with a note</span></div></section></div>${reflectionPanel('months',monthKey(y,m),s.average,'Calculated from all days with ratings in this month.')}</div>`;
+}
+function renderDay() {
+  const key=state.day,[y,m1,d]=key.split('-').map(Number),m=m1-1,e=entry('days',key),date=new Date(y,m,d,12);
+  const dateTitle=new Intl.DateTimeFormat('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(date);
+  const ms=monthStats(y,m),ys=yearStats(y);
+  const chips=Array.from({length:10},(_,i)=>i+1).map(n=>{
+    const canonical=n, display=isPercent()?`${n*10}%`:n;
+    return `<button type="button" data-action="quick-rating" data-value="${canonical}" class="score-chip ${e.rating===canonical?'selected':''}" aria-label="Rate this day ${display}${isPercent()?'':' out of 10'}">${display}</button>`;
+  }).join('');
+  return `${heading('One day at a time.','Every entry adds a little more context to the bigger picture.','Daily journal')}
+  <div class="day-layout"><section class="panel"><div class="day-form-head"><div><div class="big-date">${escapeHTML(dateTitle)}</div><div class="day-sub">${key===iso(today.getFullYear(),today.getMonth(),today.getDate())?'Today':key}</div></div><span class="panel-meta">DAY ENTRY</span></div>
+  <div class="rating-banner"><label for="day-rating" class="field-label">How was your day?</label><div class="score-flex"><input id="day-rating" type="number" class="day-number-input" ${ratingAttributes()} value="${inputRating(e.rating)}" data-rating="1" data-section="days" data-key="${key}" aria-label="Day rating, ${scoreRange()}"/><span class="score-scale">${isPercent()?'%':'/ 10'}</span><button type="button" class="clear-btn" data-action="clear-rating" data-section="days" data-key="${key}">Clear</button></div><div class="field-help">${isPercent()?'Enter 0–100, such as 85 for 85% or 87.5 for 87.5%.':'Enter 0–10, including decimals such as 7.5 or 8.75.'} Press Enter or click away to save.</div></div>
+  <div class="quick-heading">Or select a whole number</div><div class="score-chips">${chips}</div>
+  <div class="day-notes-area">${uiPrefs.prompts?`<div class="note-prompt"><span>${escapeHTML(PROMPTS[promptIndex % PROMPTS.length])}</span><button type="button" data-action="next-prompt" aria-label="Try another note prompt">↻</button></div>`:''}<label class="field-label" for="day-notes">Notes for today</label><textarea id="day-notes" class="notes-input" data-notes="1" data-section="days" data-key="${key}" placeholder="What happened today? How did you feel? What made it memorable?">${escapeHTML(e.notes)}</textarea><div class="save-caption"><span class="status-dot"></span> Changes save automatically, as you type</div></div></section>
+  <aside class="panel day-side"><div class="eyebrow">At a glance</div><h2 class="panel-title" style="margin-top:10px">Your averages</h2><div class="section-divider"></div><div class="mini-stat-title">${MONTHS[m]} average</div><div class="mini-stat-value">${showScore(ms.average)} <small>${scaleSuffix()}</small></div><div class="small-note">${ms.count} of ${ms.days} days have ratings.</div><button type="button" class="inline-link" data-action="go-month">View month calendar ↗</button><div class="section-divider"></div><div class="mini-stat-title">${y} average</div><div class="mini-stat-value">${showScore(ys.average)} <small>${scaleSuffix()}</small></div><div class="small-note">Based on ${ys.ratedMonths} rated ${ys.ratedMonths===1?'month':'months'}.</div><button type="button" class="inline-link" data-action="go-year">View year overview ↗</button><div class="tip-box"><strong style="color:#587763">How averages work</strong><div style="margin-top:6px">Month average = sum of all rated days ÷ number of rated days.<br>Year average = sum of rated month averages ÷ number of rated months.<br><br>Unrated days and months never count as zero.</div></div></aside></div>`;
+}
+function render() {
+  const content = state.view==='settings'?renderSettings():state.view==='awards'?renderAwards():state.view==='year'?renderYear():state.view==='month'?renderMonth():renderDay();
+  app.innerHTML=`<div class="app">${renderNavigation()}<main class="main">${['day','month','year'].includes(state.view)&&uiPrefs.streakBanner?renderJourney():''}${content}</main></div>`;
+}
+function syncFromDay() {const [y,m]=state.day.split('-').map(Number);state.year=y;state.month=m-1;}
+function openDay(key) {state.day=key;syncFromDay();state.view='day';render();window.scrollTo({top:0,behavior:'smooth'});}
+function openMonth(y,m){state.year=y;state.month=m;state.view='month';render();window.scrollTo({top:0,behavior:'smooth'});}
+function changePeriod(delta){
+  if(state.view==='year'){state.year+=delta;}
+  else if(state.view==='month'){const v=new Date(state.year,state.month+delta,1,12);state.year=v.getFullYear();state.month=v.getMonth();}
+  else {const [y,m,d]=state.day.split('-').map(Number);const v=new Date(y,m-1,d+delta,12);state.day=iso(v.getFullYear(),v.getMonth(),v.getDate());syncFromDay();}
+  render();
+}
+app.addEventListener('click',ev=>{
+  const btn=ev.target.closest('button[data-action]');if(!btn)return;
+  const action=btn.dataset.action;
+  if(action==='view'){state.view=btn.dataset.view;if(state.view==='day')syncFromDay();render();}
+  else if(action==='theme'||action==='scale')changePreference(action,btn.dataset.value);
+  else if(action==='award-filter'){awardFilter=btn.dataset.value;render();}
+  else if(action==='next-prompt'){promptIndex++;render();}
+  else if(action==='reset-settings'){Object.assign(uiPrefs,DEFAULT_PREFS);savePreferences();applyTheme();render();toast('Settings reset. Your entries are kept.');}
+  else if(action==='today'){state.year=today.getFullYear();state.month=today.getMonth();state.day=iso(today.getFullYear(),today.getMonth(),today.getDate());state.view='day';render();}
+  else if(action==='previous')changePeriod(-1);
+  else if(action==='next')changePeriod(1);
+  else if(action==='open-month')openMonth(state.year,Number(btn.dataset.month));
+  else if(action==='open-day')openDay(btn.dataset.day);
+  else if(action==='go-year'){state.view='year';render();}
+  else if(action==='go-month')openMonth(state.year,state.month);
+  else if(action==='quick-rating'){updateEntry('days',state.day,'rating',Number(btn.dataset.value));render();toast('Day rating saved');}
+  else if(action==='clear-rating'){updateEntry(btn.dataset.section,btn.dataset.key,'rating',null);render();toast('Rating cleared');}
+  else if(action==='export')exportData();
+  else if(action==='import'){fileInput.value='';fileInput.click();}
+});
+app.addEventListener('input',ev=>{
+  const el=ev.target;
+  if(el.matches('textarea[data-notes]')){updateEntry(el.dataset.section,el.dataset.key,'notes',el.value);}
+});
+app.addEventListener('change',ev=>{
+  const el=ev.target;
+  if(el.id==='date-jump'){if(validDateKey(el.value))openDay(el.value);return;}
+  if(el.matches('[data-pref]')){changePreference(el.dataset.pref,el.type==='checkbox'?el.checked:el.value);return;}
+  if(!el.matches('input[data-rating]'))return;
+  const raw=el.value.trim();
+  if(raw===''){updateEntry(el.dataset.section,el.dataset.key,'rating',null);render();toast('Rating cleared');return;}
+  const entered=Number(raw);
+  const r=isPercent() ? entered/10 : entered;
+  if (!Number.isFinite(entered)||!validRating(r)) {
+    toast(isPercent()?'Enter a percentage from 0 to 100':'Enter a rating from 0 to 10');
+    el.value=inputRating(entry(el.dataset.section,el.dataset.key).rating);return;
+  }
+  updateEntry(el.dataset.section,el.dataset.key,'rating',r);
+  render();toast('Rating saved');
+});
+app.addEventListener('keydown',ev=>{if(ev.target.matches('input[data-rating]')&&ev.key==='Enter'){ev.target.blur();}});
+function exportData(){
+  const payload={app:'daymark',version:2,exportedAt:new Date().toISOString(),data,preferences:uiPrefs,achievements:unlocked};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const href=URL.createObjectURL(blob);const a=document.createElement('a');a.href=href;a.download=`daymark-backup-${iso(today.getFullYear(),today.getMonth(),today.getDate())}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(href),1000);toast('Backup downloaded');
+}
+fileInput.addEventListener('change',async()=>{
+  const f=fileInput.files&&fileInput.files[0];if(!f)return;
+  try{
+    const parsed=JSON.parse(await f.text());
+    const source=parsed&&typeof parsed==='object' ? (parsed.data||parsed) : null;
+    if(!source||typeof source!=='object'||!['days','months','years'].some(k=>source[k]&&typeof source[k]==='object'))throw new Error('Not a Daymark backup');
+    if(!confirm('This will REPLACE all current Daymark entries with the backup. Export your current data first if you need it. Continue?'))return;
+    data=sanitize(parsed);
+    if(parsed.preferences)Object.assign(uiPrefs,validatePreferences(parsed.preferences));
+    if(parsed.achievements)unlocked=validateUnlocks(parsed.achievements);
+    savePreferences();applyTheme();persist();checkAwards();render();toast('Backup imported successfully');
+  }catch(err){alert('Could not import this backup. Please choose a valid Daymark JSON file.');}
+});
+// Streaks use calendar dates, not save operations. UTC day numbers avoid DST gaps.
+const AWARDS_KEY='daymark-achievements-v1';
+const PROMPTS=['What is one small moment you want to remember?','What gave you energy today?','What felt difficult, and what helped?','Who made your day a little better?','What are you looking forward to?','What did you learn about yourself?'];
+let promptIndex=0,awardFilter='all',awardTimer,awardQueue=[],popupTimer,popupActive=false;
+const ACHIEVEMENTS=[
+  ...[1,10,100,1000,10000].map((n,i)=>({id:`days-${n}`,group:'logging',icon:['🌱','📒','💎','🌟','👑'][i],title:['First mark','Getting into it','A hundred stories','A thousand moments','A life in days'][i],description:`Rate ${n.toLocaleString()} distinct days.`,target:n,metric:'days'})),
+  ...[1,10,100,1000].map((n,i)=>({id:`notes-${n}`,group:'notes',icon:['✍️','💬','📚','🪶'][i],title:['A thought worth keeping','Finding your voice','Your own library','A thousand reflections'][i],description:`Write notes on ${n.toLocaleString()} distinct day, month or year entries.`,target:n,metric:'notes'})),
+  ...[1,7,30,100,365,1000].map((n,i)=>({id:`streak-${n}`,group:'streaks',icon:['🔥','🕯️','⚡','☄️','☀️','🐉'][i],title:['Spark','One whole week','Thirty-day rhythm','Unstoppable','A year of showing up','Legendary rhythm'][i],description:`Reach ${n.toLocaleString()} consecutive rated calendar days.`,target:n,metric:'best'})),
+  {id:'full-month',group:'reflections',icon:'🗓️',title:'Every day mattered',description:'Rate every day in a completed calendar month.',target:1,metric:'fullMonths'},
+  {id:'months-12',group:'reflections',icon:'🎨',title:'A dozen chapters',description:'Complete 12 fully rated calendar months, across any years.',target:12,metric:'fullMonths'},
+  {id:'full-year',group:'reflections',icon:'🏆',title:'The whole story',description:'Rate every day in a completed calendar year, including February 29 in leap years.',target:1,metric:'fullYears'},
+  {id:'bright-year',group:'reflections',icon:'✨',title:'A year to remember',description:'Complete a fully rated calendar year averaging at least 8/10 (80%).',target:1,metric:'brightYears'}
+];
+function validateUnlocks(raw){const out={};if(!raw||typeof raw!=='object')return out;for(const a of ACHIEVEMENTS){const stamp=raw[a.id];if(typeof stamp==='string'&&Number.isFinite(Date.parse(stamp)))out[a.id]=stamp;}return out;}
+let unlocked={};try{unlocked=validateUnlocks(JSON.parse(localStorage.getItem(AWARDS_KEY)||'{}'));}catch(e){}
+function validDateKey(key){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(key))return false;
+  const [y,m,d]=key.split('-').map(Number);if(y<100||m<1||m>12||d<1||d>getDays(y,m-1))return false;return true;
+}
+function todayKey(){const now=new Date();return iso(now.getFullYear(),now.getMonth(),now.getDate());}
+function dayNumber(key){const [y,m,d]=key.split('-').map(Number);return Math.floor(Date.UTC(y,m-1,d)/86400000);}
+function journeyStats(){
+  const limit=todayKey(),end=dayNumber(limit);
+  const keys=Object.keys(data.days).filter(k=>validDateKey(k)&&k<=limit&&validRating(data.days[k].rating)).sort();
+  const numbers=keys.map(dayNumber),set=new Set(numbers);let run=0,best=0,previous=-Infinity;
+  for(const n of numbers){run=n===previous+1?run+1:1;best=Math.max(best,run);previous=n;}
+  let current=0,anchor=set.has(end)?end:end-1;while(set.has(anchor)){current++;anchor--;}
+  const notes=['days','months','years'].reduce((sum,section)=>sum+Object.values(data[section]).filter(e=>e.notes.trim()).length,0);
+  const monthCounts={};for(const key of keys){const month=key.slice(0,7);monthCounts[month]=(monthCounts[month]||0)+1;}
+  const full=Object.keys(monthCounts).filter(key=>{const [y,m]=key.split('-').map(Number);return iso(y,m-1,getDays(y,m-1))<=limit&&monthCounts[key]===getDays(y,m-1);});
+  const fullSet=new Set(full);let fullYears=0,brightYears=0;
+  for(const year of new Set(keys.map(k=>Number(k.slice(0,4))))){if(iso(year,11,31)>limit)continue;if(MONTHS.every((_,m)=>fullSet.has(monthKey(year,m)))){fullYears++;if(yearStats(year).average>=8)brightYears++;}}
+  return {days:keys.length,notes,best,current,fullMonths:full.length,fullYears,brightYears,todayLogged:set.has(end)};
+}
+function scheduleAwards(debounce){clearTimeout(awardTimer);if(debounce)awardTimer=setTimeout(()=>{checkAwards();refreshJourney();},650);else{checkAwards();refreshJourney();}}
+function refreshJourney(){const el=document.getElementById('journey');if(el)el.outerHTML=renderJourney();}
+function checkAwards(){
+  const metrics=journeyStats(),fresh=[];
+  for(const a of ACHIEVEMENTS)if(!unlocked[a.id]&&metrics[a.metric]>=a.target){unlocked[a.id]=new Date().toISOString();fresh.push(a);}
+  if(!fresh.length)return;
+  try{localStorage.setItem(AWARDS_KEY,JSON.stringify(unlocked));}catch(e){toast('Award earned. Export a backup to keep it.');}
+  if(uiPrefs.popups){awardQueue.push(...fresh);showNextAward();}
+}
+function celebrate(){
+  if(!uiPrefs.confetti||!uiPrefs.motion||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const layer=document.getElementById('confetti-layer');layer.innerHTML=Array.from({length:24},(_,i)=>`<i class="confetti" style="left:${(i*37)%100}%;--delay:${i%5*.08}s;--drift:${i%2?'-':'+'}${30+i*3}px;background:${['var(--green)','#e6bc63','#ab96e5','#ef99aa'][i%4]}"></i>`).join('');setTimeout(()=>{layer.innerHTML='';},2600);
+}
+function showNextAward(){
+  if(popupActive||!awardQueue.length)return;
+  popupActive=true;const a=awardQueue.shift(),el=document.getElementById('award-popup');
+  el.innerHTML=`<span class="award-popup-icon">${a.icon}</span><div><div class="eyebrow">Achievement unlocked</div><strong>${a.title}</strong><p>${a.description}</p><button type="button" data-popup="awards">View awards${awardQueue.length?` · +${awardQueue.length} more`:''} ↗</button></div><button type="button" class="popup-close" data-popup="dismiss" aria-label="Dismiss award">×</button>`;el.hidden=false;celebrate();
+  clearTimeout(popupTimer);popupTimer=setTimeout(dismissAward,6500);
+}
+function dismissAward(){clearTimeout(popupTimer);document.getElementById('award-popup').hidden=true;popupActive=false;showNextAward();}
+document.getElementById('award-popup').addEventListener('click',ev=>{const btn=ev.target.closest('[data-popup]');if(!btn)return;if(btn.dataset.popup==='awards'){awardQueue=[];dismissAward();state.view='awards';render();window.scrollTo({top:0,behavior:'smooth'});}else dismissAward();});
+function renderJourney(){
+  const j=journeyStats();
+  const now=new Date(),m=monthStats(now.getFullYear(),now.getMonth()),goal=uiPrefs.monthlyGoal==='full'?m.days:Number(uiPrefs.monthlyGoal),progress=Math.min(100,m.count/goal*100);
+  return `<section class="journey" id="journey" aria-label="Your logging progress"><div class="journey-streak"><span class="flame" aria-hidden="true">${j.current?'🔥':'🌱'}</span><div><strong>${j.current} <span>day streak</span></strong><small>${j.todayLogged?'Today is in the books.':j.current?'Your streak is ready for today.':'One entry is a fresh start.'}</small></div></div><div class="journey-best"><small>PERSONAL BEST</small><strong>${j.best} days</strong></div><div class="journey-goal"><div><span>${SHORT[now.getMonth()]} goal</span><strong>${m.count} / ${goal} days${m.count>=goal?' ✓':''}</strong></div><progress value="${Math.min(m.count,goal)}" max="${goal}" aria-label="Monthly logging goal">${Math.round(progress)}%</progress></div><button class="journey-awards" type="button" data-action="view" data-view="awards">🏆 ${Object.keys(unlocked).length}<span> awards ↗</span></button></section>`;
+}
+function subheading(title,description,kicker){return `<div class="page-heading"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p class="subtitle">${description}</p></div></div>`;}
+function renderAwards(){
+  const j=journeyStats(),count=Object.keys(unlocked).length;
+  return `${subheading('Little marks. Big milestones.','A celebration of showing up and making space for your story.','Your trophy shelf')}<section class="awards-summary panel"><div><span class="shelf-trophy" aria-hidden="true">🏆</span><h2>${count} of ${ACHIEVEMENTS.length} awards earned</h2><p>Backfilled days count. Future dates do not. Notes count once per entry.</p><progress value="${count}" max="${ACHIEVEMENTS.length}" aria-label="Achievements earned"></progress></div><div class="shelf-stats"><strong>${j.days.toLocaleString()}<small>rated days</small></strong><strong>${j.notes.toLocaleString()}<small>notes</small></strong><strong>${j.best.toLocaleString()}<small>best streak</small></strong></div></section><div class="award-filters" role="group" aria-label="Filter achievements">${[['all','All awards'],['logging','Logging'],['notes','Notes'],['streaks','Streaks'],['reflections','Months & years']].map(([v,label])=>`<button type="button" data-action="award-filter" data-value="${v}" aria-pressed="${awardFilter===v}">${label}</button>`).join('')}</div><div class="award-grid">${ACHIEVEMENTS.filter(a=>awardFilter==='all'||a.group===awardFilter).map(a=>{
+    const earned=unlocked[a.id],progress=Math.min(a.target,j[a.metric]);
+    return `<article class="award-card ${earned?'earned':'locked'}"><div class="award-icon" aria-hidden="true">${a.icon}</div><div class="award-card-top"><span>${a.group}</span><span>${earned?'✓ Earned':'In progress'}</span></div><h2>${a.title}</h2><p>${a.description}</p><progress value="${earned?a.target:progress}" max="${a.target}" aria-label="${a.title} progress"></progress><small>${earned?'Earned '+new Intl.DateTimeFormat('en-US',{dateStyle:'medium'}).format(new Date(earned)):progress.toLocaleString()+' / '+a.target.toLocaleString()}</small></article>`;
+  }).join('')}</div><p class="small-note">A streak is consecutive rated dates ending today or yesterday. A week is 7 days; a month milestone is 30 days; a year milestone is 365 days. Completed-month and completed-year awards require every calendar day, including leap days. Earned awards stay on your shelf even if you edit an entry later. Your rating never needs to be high to earn a logging award.</p>`;
+}
+function selectSetting(key,label,options,help=''){return `<label class="setting-row"><span><strong>${label}</strong>${help?`<small>${help}</small>`:''}</span><select data-pref="${key}">${options.map(([v,t])=>`<option value="${v}" ${uiPrefs[key]===v?'selected':''}>${t}</option>`).join('')}</select></label>`;}
+function toggleSetting(key,label,help){return `<label class="setting-row"><span><strong>${label}</strong><small>${help}</small></span><input type="checkbox" class="toggle" data-pref="${key}" ${uiPrefs[key]?'checked':''}/></label>`;}
+function renderSettings(){
+  return `${subheading('Make yourself at home.','Choose a mood, find your rhythm, and make Daymark feel like you.','Settings & themes')}<section class="panel theme-panel"><div class="panel-head"><div><h2 class="panel-title">A theme for every mood</h2><p class="panel-description">True dark is neutral black. Forest keeps the original dark green.</p></div></div><div class="theme-grid">${THEMES.map(([id,name,description,bg,accent])=>`<button type="button" class="theme-card" data-action="theme" data-value="${id}" aria-pressed="${uiPrefs.theme===id}"><span class="theme-preview" style="background:${bg};--swatch-accent:${accent}"><i></i><i></i><i></i><span>${id==='system'?'◐':'Aa'}</span></span><strong>${name} ${uiPrefs.theme===id?'✓':''}</strong><small>${description}</small></button>`).join('')}</div></section><div class="settings-grid"><section class="panel"><h2 class="panel-title">Your journal</h2><label class="setting-row"><span><strong>Journal name</strong><small>A little identity in your sidebar.</small></span><input data-pref="journalName" maxlength="40" value="${escapeHTML(uiPrefs.journalName)}" aria-label="Journal name" /></label>${selectSetting('scale','Rating format',[['ten','Out of 10'],['percent','Percentage']],'Existing scores convert automatically.')}${selectSetting('startView','Open Daymark to',[['year','Year overview'],['month','Month calendar'],['day','Today']])}${selectSetting('weekStart','Calendar starts on',[['monday','Monday'],['sunday','Sunday']])}${selectSetting('monthlyGoal','Monthly logging goal',[['5','5 days'],['10','10 days'],['15','15 days'],['20','20 days'],['full','Every day']],'Progress uses the current calendar month.')}${toggleSetting('personalRatings','Personal month & year ratings','Show optional ratings alongside calculated averages.')}${toggleSetting('prompts','Reflection prompts','Show gentle writing ideas above your daily notes.')}</section><section class="panel"><h2 class="panel-title">Look & feel</h2>${selectSetting('font','Typeface',[['sans','Modern sans'],['serif','Bookish serif'],['mono','Monospace']])}${selectSetting('textSize','Text size',[['normal','Standard'],['large','Larger']])}${selectSetting('density','Layout spacing',[['comfortable','Comfortable'],['compact','Compact']])}${selectSetting('corners','Corners',[['soft','Soft & rounded'],['square','Clean & square']])}<label class="setting-row"><span><strong>Custom accent</strong><small>Optional color for buttons and highlights.</small></span><input type="color" data-pref="accent" value="${uiPrefs.accent||THEMES.find(t=>t[0]===resolvedTheme())[4]}" aria-label="Custom accent color"/></label>${uiPrefs.accent?'<button class="clear-btn" type="button" data-action="default-accent">Use theme accent</button>':''}${toggleSetting('heatmap','Color-coded days','Shade calendar days by rating.')}${toggleSetting('motion','Animations','Small transitions and playful celebrations.')}</section><section class="panel"><h2 class="panel-title">Milestones & celebrations</h2>${toggleSetting('streakBanner','Progress banner','See your streak, personal best, and monthly goal.')}${toggleSetting('popups','Achievement popups','An award appears when you reach a new milestone.')}${toggleSetting('confetti','A little confetti','Celebrate new awards with a brief burst of color.')}<p class="small-note">Awards still unlock when popups are off. Your device’s reduced-motion preference is always respected.</p></section><section class="panel"><h2 class="panel-title">Your data, your story</h2><p class="panel-description">Your entries save in this browser. A backup includes your ratings, notes, settings, and earned awards.</p><div class="backup-actions"><button class="today-btn" type="button" data-action="export">Export backup ↗</button><button class="today-btn" type="button" data-action="import">Import backup</button></div><p class="small-note">Older Daymark backups work too. Import replaces entries; export first if you want to keep the current journal. Use the same website address and browser to keep existing entries when updating.</p><button class="inline-link" type="button" data-action="reset-settings">Reset settings to defaults</button><p class="small-note">This resets appearance and preferences only. Ratings, notes, and awards are kept.</p></section></div>`;
+}
+app.addEventListener('click',ev=>{if(ev.target.closest('[data-action="default-accent"]')){uiPrefs.accent='';savePreferences();applyTheme();render();}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){const previous=iso(today.getFullYear(),today.getMonth(),today.getDate());today.setTime(Date.now());if(previous!==todayKey()){checkAwards();render();}}});
+
+checkAwards();render();
+})();
+</script>
+</body>
+</html>
